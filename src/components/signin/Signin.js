@@ -2,7 +2,7 @@ import { useState } from "react";
 import Forminput from "../form-input/Forminput";
 import './signin.scss';
 import Button from "../button/Button";
-import { createAuthUserWithEmailAndPassword,createUserDocumentFromAuth } from "../../utils/firebase/Firebase";
+import { signInWithGooglePopup,createUserDocumentFromAuth,signInAuthUserWithEmailAndPassword} from "../../utils/firebase/Firebase";
 const defaultFormFields={
     
     email:'',
@@ -14,26 +14,38 @@ const Signin=()=>{
     const [formFields,setformFields]=useState(defaultFormFields);
     const{ email ,password}=formFields;
     
-    console.log(formFields)
+   // console.log(formFields)
 
     const resetFormFields=()=>{
         setformFields(defaultFormFields)
+    }
+    const signInWithGoogle=async()=>{
+        const  {user}=await signInWithGooglePopup();        //SWGP button method
+         await createUserDocumentFromAuth(user);
     }
 
     const handleSubmit=async(e)=>{
         e.preventDefault();
         
 
-        try{
+    try{
 
-             
-resetFormFields(); //to clear fields
-        }catch(error){
-            
+             const response=await signInAuthUserWithEmailAndPassword(email,password);
+             console.log(response)
+              resetFormFields();  
+    }
+    catch(error){
+            console.log(error)
+            if(error.code==="auth/wrong-password"){
+                alert('incorrect password for email')
             }
+            else if(error.code==="auth/user-not-found"){
+                alert('no user with this email')
+            }
+    }
             
 
-        }
+          }
 
     
 
@@ -42,9 +54,7 @@ resetFormFields(); //to clear fields
     const handleChange=(e)=>{
         const{name,value}=e.target ; 
 
-        setformFields({
-            ...formFields,[name]:value
-        })
+        setformFields({...formFields,[name]:value})
 
     }
     
@@ -66,10 +76,12 @@ resetFormFields(); //to clear fields
 
                 
                  
-
+                <div className="buttons-container">
                 <Button type="submit">Sign In</Button>
-                <Button buttonType="google">Google sign n</Button>
+                <Button type="button" id='g-btn' onClick={signInWithGoogle} buttonType="google" >Google sign in</Button>
 
+                </div>
+                
             </form>
         </div>
     )

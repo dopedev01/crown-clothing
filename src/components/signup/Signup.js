@@ -32,7 +32,7 @@ const Signup=()=>{
 
             const {user}=await createAuthUserWithEmailAndPassword(email,password);
              await createUserDocumentFromAuth(user,{displayName})
-resetFormFields(); //to clear fields
+             resetFormFields(); 
         }catch(error){
             if(error.code==='auth/email-already-in-use'){
                 alert('Email already in use')
